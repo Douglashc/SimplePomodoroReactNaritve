@@ -6,6 +6,7 @@ import Header from './src/components/Header';
 import Timer from './src/components/Timer';
 
 import { LogBox } from 'react-native';
+import Footer from './src/components/Footer';
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 LogBox.ignoreAllLogs(); //Ignore all log notifications
 
@@ -13,9 +14,8 @@ const conlors = ["#F7DC6F", "#A2D9CE", "#D7BDE2"];
 
 export default function App() {
 
-  const [isWorking, setIsWorking] = useState(false);
   const [time, setTime] = useState(25 * 60);
-  const [currentTime, setCurrentTime] = useState("POMO" | "SHORT" |"BREAK");
+  const [currentTime, setCurrentTime] = useState("Pomodoro" | "Short Break" | "Long Break");
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
@@ -24,15 +24,13 @@ export default function App() {
     if(isActive){
       interval = setInterval(() => {
         setTime(time - 1);
-      }, 1000);
+      }, 10);
     }else{
       clearInterval(interval);
     }
 
-    if(time === 0){
-      setIsActive(false);
-      setIsWorking((prev) => !prev);
-      setTime(isWorking ? 300 : 1500);
+    if(time <= 0){
+      resetTime();
     }
 
     return () => clearInterval(interval);
@@ -41,6 +39,11 @@ export default function App() {
   function handleStartStop(){
     playSound();
     setIsActive(!isActive);
+  }
+
+  function resetTime(){
+    setIsActive(false);
+    setTime(currentTime === 0 ? 1500 : currentTime === 1 ? 300 : 900);
   }
   
   async function playSound() {
@@ -66,8 +69,14 @@ export default function App() {
             {isActive ? "STOP" : "START"}
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.buttonReset} onPress={resetTime}>
+          <Text style={{color: "white", fontWeight: "bold"}}>
+            RESET
+          </Text>
+        </TouchableOpacity>
         <StatusBar style="auto" />
       </View>
+      <Footer />
     </SafeAreaView>
   );
 }
@@ -79,12 +88,19 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 32,
     fontWeight: 'bold',
-  },
+  },  
   button: {
     alignItems: 'center',
     backgroundColor: '#333333',
     padding: 15,
     marginTop: 15,
     borderRadius: 15,
-  }
+  },
+  buttonReset: {
+    alignItems: 'center',
+    backgroundColor: '#DE4C2D',
+    padding: 15,
+    marginTop: 15,
+    borderRadius: 15,
+  },
 });
